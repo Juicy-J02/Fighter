@@ -68,9 +68,9 @@ class Fighter:
                 if key[pygame.K_w] and self.jump is False and self.jump_cooldown == 0:
                     self.vel_y = -30
                     self.jump = True
-                if key[pygame.K_s] and self.jump is False:
-                    dx = 0
-                    self.crouch = True
+                # if key[pygame.K_s] and self.jump is False:
+                #     dx = 0
+                #     self.crouch = True
                 else:
                     self.crouch = False
                 if self.attacking is False:
@@ -135,7 +135,7 @@ class Fighter:
 
         # attack delay
         if self.attack_delay > 0 and self.attacking is True:
-            if pygame.time.get_ticks() >= self.attack_delay:
+            if pygame.time.get_ticks() >= self.attack_delay and self.hit is False:
                 self.throw_attack(surface, target)
                 self.attack_delay = 0
 
@@ -202,7 +202,7 @@ class Fighter:
                 if self.action == 5:
                     self.hit = False
                     self.attacking = False
-                    self.attack_cooldown = 30  # Hit Delay
+                    self.attack_cooldown = 20  # Hit Delay
 
     def attack(self):
         if self.attack_cooldown == 0 and self.hit is False:
