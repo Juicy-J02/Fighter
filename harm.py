@@ -10,13 +10,14 @@ def apply_harm(target):
 
 
 def apply_harm_hit(target):
-    target.harm_countdown += 1
-    target.harm_hit = True
-    target.harm_hit_cooldown = pygame.time.get_ticks() + 250
+    if not target.harm:
+        target.harm_countdown += 1
+        target.harm_hit = True
+        target.harm_hit_cooldown = pygame.time.get_ticks() + 250
 
 
 def apply_harm_damage(target):
-    target.health -= .2
+    target.health -= .25
 
 
 def recover_harm(target):

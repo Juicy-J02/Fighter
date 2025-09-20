@@ -240,8 +240,9 @@ class Wizard:
 
             if attacking_rect_2.colliderect(target.rect):
                 target.hit = True
-                target.health -= 5
                 apply_harm_hit(target)
+                if target.harm_countdown <= 2:
+                    target.health -= 5
                 if target.harm is False and target.harm_countdown == 3:
                     apply_harm(target)
             elif attacking_rect.colliderect(target.rect):
