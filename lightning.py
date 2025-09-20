@@ -1,5 +1,6 @@
 import pygame
 
+
 class Lightning:
     def __init__(self, x, y, direction, speed, damage, image=None):
         self.image = image

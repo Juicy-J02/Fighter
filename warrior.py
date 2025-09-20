@@ -1,14 +1,16 @@
 import pygame
 
+from harm import *
 
-class Fighter:
-    def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, sound, speed):
+class Warrior:
+    def __init__(self, player, x, y, flip):
         self.player = player
-        self.size = data[0]
-        self.image_scale = data[1]
-        self.offset = data[2]
+        self.size = 162
+        self.image_scale = 4
+        self.offset = [72, 56]
         self.flip = flip
-        self.animation_list = self.load_images(sprite_sheet, animation_steps)
+        self.animation_list = self.load_images(pygame.image.load("assets/images/warrior/Sprites/warrior_3.png")
+                                               .convert_alpha(), [10, 8, 1, 7, 7, 3, 7, 8, 1])
         self.action = 0
         self.frame_index = 0
         self.image = self.animation_list[self.action][self.frame_index]
@@ -18,17 +20,19 @@ class Fighter:
         self.vel_y = 0
         self.running = False
         self.jump = False
+        self.jump_height = 30
         self.jump_cooldown = 0
         self.attacking = False
         self.attack_type = 0
         self.attack_cooldown = 0
-        self.attack_sound = sound
+        self.attack_sound = pygame.mixer.Sound("assets/audio/sword.wav")
+        self.attack_sound.set_volume(0.5)
         self.attack_delay = 0
         self.crouch = False
         self.hit = False
         self.health = 100
         self.alive = True
-        self.speed = speed
+        self.speed = 10
         self.harm = False
         self.harm_hit = False
         self.harm_cooldown = 0
@@ -66,13 +70,13 @@ class Fighter:
                     self.running = True
                     self.flip = False
                 if key[pygame.K_w] and self.jump is False and self.jump_cooldown == 0:
-                    self.vel_y = -30
+                    self.vel_y = -self.jump_height
                     self.jump = True
                 # if key[pygame.K_s] and self.jump is False:
                 #     dx = 0
                 #     self.crouch = True
-                else:
-                    self.crouch = False
+                # else:
+                #     self.crouch = False
                 if self.attacking is False:
                     if key[pygame.K_r] or key[pygame.K_t]:
                         if key[pygame.K_r]:
@@ -93,16 +97,21 @@ class Fighter:
                     self.running = True
                     self.flip = False
                 if key[pygame.K_UP] and self.jump is False and self.jump_cooldown == 0:
-                    self.vel_y = -35
+                    self.vel_y = -self.jump_height
                     self.jump = True
+                # if key[pygame.K_DOWN] and self.jump is False:
+                #     dx = 0
+                #     self.crouch = True
+                else:
+                    self.crouch = False
                 if self.attacking is False:
                     if key[pygame.K_KP1] or key[pygame.K_KP2]:
                         if key[pygame.K_KP1]:
                             self.attack_type = 1
-                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 4) + 5
+                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 5) + 5
                         if key[pygame.K_KP2]:
                             self.attack_type = 2
-                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 5) + 5
+                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 3) + 5
                         self.attack()
 
         self.vel_y += GRAVITY
@@ -145,10 +154,9 @@ class Fighter:
         # harm conditions
 
         if self.harm_cooldown > 0 and self.harm is True:
-            self.health -= .15
+            apply_harm_damage(self)
             if pygame.time.get_ticks() >= self.harm_cooldown:
-                self.speed += 6
-                self.harm = False
+                recover_harm(self)
 
         # harm hit conditions
 
@@ -210,95 +218,48 @@ class Fighter:
             self.attack_sound.play()
 
     def throw_attack(self, surface, target):
-        if self.player == 1:
-
-            if self.attack_type == 1:
-                self.update_time = pygame.time.get_ticks()
-                attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width * self.flip),
-                                             self.rect.y, 2 * self.rect.width + 35, self.rect.height)
-                if attacking_rect.colliderect(target.rect):
-                    target.health -= 10
-                    target.hit = True
+        if self.attack_type == 1:
+            if self.flip is False:
+                attacking_rect = pygame.Rect(self.rect.centerx + 25, self.rect.y,
+                                             2.25 * self.rect.width, self.rect.height)
                 self.draw_debug(surface, attacking_rect)
-
-            if self.attack_type == 2:
-                attacking_rect = pygame.Rect(self.rect.centerx - (3 * self.rect.width // 2),
-                                             self.rect.y + self.rect.height / 2, 3 * self.rect.width,
-                                             self.rect.height / 1.5)
+            else:
+                attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width) - 50, self.rect.y,
+                                             2.25 * self.rect.width, self.rect.height)
                 self.draw_debug(surface, attacking_rect)
-                if self.flip is False:
-                    attacking_rect_2 = pygame.Rect(self.rect.centerx + 120, self.rect.y, self.rect.width,
-                                                   self.rect.height)
-                    self.draw_debug(surface, attacking_rect_2)
-                else:
-                    attacking_rect_2 = pygame.Rect(self.rect.centerx - 200, self.rect.y, self.rect.width,
-                                                   self.rect.height)
-                    self.draw_debug(surface, attacking_rect_2)
+            if attacking_rect.colliderect(target.rect):
+                target.health -= 10
+                target.hit = True
 
-                if self.flip is False:
-                    attacking_rect_3 = pygame.Rect(self.rect.centerx - 235, self.rect.y - 65, self.rect.width + 35,
-                                                   self.rect.height + 40)
-                    self.draw_debug(surface, attacking_rect_3)
-                else:
-                    attacking_rect_3 = pygame.Rect(self.rect.centerx + 120, self.rect.y - 65, self.rect.width + 35,
-                                                   self.rect.height + 40)
-                    self.draw_debug(surface, attacking_rect_3)
+        if self.attack_type == 2:
+            attacking_rect = pygame.Rect(self.rect.centerx - (3 * self.rect.width // 2),
+                                         self.rect.y + self.rect.height / 2, 3 * self.rect.width,
+                                         self.rect.height / 1.5)
+            self.draw_debug(surface, attacking_rect)
+            if self.flip is False:
+                attacking_rect_2 = pygame.Rect(self.rect.centerx + 120, self.rect.y, self.rect.width,
+                                               self.rect.height)
+                self.draw_debug(surface, attacking_rect_2)
+            else:
+                attacking_rect_2 = pygame.Rect(self.rect.centerx - 200, self.rect.y, self.rect.width,
+                                               self.rect.height)
+                self.draw_debug(surface, attacking_rect_2)
 
-                if attacking_rect_3.colliderect(target.rect):
-                    target.health -= 15
-                    target.hit = True
-                elif attacking_rect.colliderect(target.rect) or attacking_rect_2.colliderect(target.rect):
-                    target.health -= 5
-                    target.hit = True
+            if self.flip is False:
+                attacking_rect_3 = pygame.Rect(self.rect.centerx - 235, self.rect.y - 65, self.rect.width + 35,
+                                               self.rect.height + 40)
+                self.draw_debug(surface, attacking_rect_3)
+            else:
+                attacking_rect_3 = pygame.Rect(self.rect.centerx + 120, self.rect.y - 65, self.rect.width + 35,
+                                               self.rect.height + 40)
+                self.draw_debug(surface, attacking_rect_3)
 
-        if self.player == 2:
-            if self.attack_type == 1:
-
-                if self.flip is False:
-                    attacking_rect = pygame.Rect(self.rect.centerx + 90, self.rect.y - 40, self.rect.width,
-                                                 self.rect.height / 1.25)
-                    self.draw_debug(surface, attacking_rect)
-                else:
-                    attacking_rect = pygame.Rect(self.rect.centerx - 170, self.rect.y - 40, self.rect.width,
-                                                 self.rect.height / 1.25)
-                    self.draw_debug(surface, attacking_rect)
-
-                if self.flip is False:
-                    attacking_rect_2 = pygame.Rect(self.rect.centerx + 220, self.rect.y - 60, self.rect.width + 20,
-                                                   self.rect.height / 1.25)
-                    self.draw_debug(surface, attacking_rect_2)
-                else:
-                    attacking_rect_2 = pygame.Rect(self.rect.centerx - 300, self.rect.y - 60, self.rect.width + 20,
-                                                   self.rect.height / 1.25)
-                    self.draw_debug(surface, attacking_rect_2)
-
-                if attacking_rect_2.colliderect(target.rect):
-                    target.hit = True
-                    target.health -= 5
-                    self.apply_harm_hit(target)
-                    if target.harm is False and target.harm_countdown == 3:
-                        self.apply_harm(target)
-                elif attacking_rect.colliderect(target.rect):
-                    target.health -= 10
-                    target.hit = True
-
-            if self.attack_type == 2:
-
-                if self.flip is False:
-                    attacking_rect = pygame.Rect(self.rect.centerx + 200, self.rect.y - 100, self.rect.width * 2,
-                                                 self.rect.height * 1.6)
-                    self.draw_debug(surface, attacking_rect)
-                else:
-                    attacking_rect = pygame.Rect(self.rect.centerx - 350, self.rect.y - 100, self.rect.width * 2,
-                                                 self.rect.height * 1.6)
-                    self.draw_debug(surface, attacking_rect)
-
-                if attacking_rect.colliderect(target.rect):
-                    target.hit = True
-                    target.health -= 5
-                    self.apply_harm_hit(target)
-                    if target.harm is False and target.harm_countdown == 3:
-                        self.apply_harm(target)
+            if attacking_rect_3.colliderect(target.rect):
+                target.health -= 15
+                target.hit = True
+            elif attacking_rect.colliderect(target.rect) or attacking_rect_2.colliderect(target.rect):
+                target.health -= 5
+                target.hit = True
 
     def update_action(self, new_action):
         if new_action != self.action:
@@ -313,18 +274,4 @@ class Fighter:
 
     def draw_debug(self, surface, rect):
         pass
-        #  pygame.draw.rect(surface, (0, 255, 0), rect)
-
-    @staticmethod
-    def apply_harm(target):
-        target.harm = True
-        target.harm_countdown = 0
-        target.speed -= 6
-        target.harm_cooldown = pygame.time.get_ticks() + 1500
-
-    @staticmethod
-    def apply_harm_hit(target):
-        target.harm_countdown += 1
-        target.harm_hit = True
-        target.harm_hit_cooldown = pygame.time.get_ticks() + 250
-
+        pygame.draw.rect(surface, (0, 255, 0), rect)

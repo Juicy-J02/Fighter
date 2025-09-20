@@ -1,6 +1,8 @@
 import pygame
 from pygame import mixer
 from fighter import Fighter
+from warrior import Warrior
+from wizard import Wizard
 
 mixer.init()
 pygame.init()
@@ -17,6 +19,7 @@ FPS = 60
 YELLOW = (255, 255, 0)
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
+PURPLE = (128, 0, 128)
 
 intro_count = 3
 last_count_update = pygame.time.get_ticks()
@@ -67,15 +70,20 @@ def draw_bg():
     screen.blit(scaled_bg, (0, 0))
 
 
-def draw_health_bar(health, x, y):
+def draw_health_bar(health, harm, x, y):
     ratio = health / 100
     pygame.draw.rect(screen, WHITE, (x - 5, y - 5, 410, 40))
     pygame.draw.rect(screen, RED, (x, y, 400, 30))
-    pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
+    if harm:
+        pygame.draw.rect(screen, PURPLE, (x, y, 400 * ratio, 30))
+    else:
+        pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
 
+fighter_1 = Warrior(1, 200, 310, False)
+fighter_2 = Wizard(2, 700, 310, True)
 
-fighter_1 = Fighter(1, 200, 310, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx, 10)
-fighter_2 = Fighter(2, 700, 310, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, magic_fx, 12)
+# fighter_1 = Fighter(1, 200, 310, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx, 10)
+# fighter_2 = Fighter(2, 700, 310, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, magic_fx, 12)
 
 run = True
 while run:
@@ -84,10 +92,10 @@ while run:
 
     draw_bg()
 
-    draw_health_bar(fighter_1.health, 20, 20)
-    draw_health_bar(fighter_2.health, 580, 20)
+    draw_health_bar(fighter_1.health, fighter_1.harm, 20, 20)
+    draw_health_bar(fighter_2.health, fighter_2.harm, 580, 20)
     draw_text("P1: " + str(score[0]), score_font, RED, 20, 60)
-    draw_text("P: " + str(score[1]), score_font, RED, 580, 60)
+    draw_text("P2: " + str(score[1]), score_font, RED, 580, 60)
 
     if intro_count <= 0:
         fighter_1.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_2, round_over)
