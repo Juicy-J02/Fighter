@@ -30,6 +30,7 @@ class Wizard:
         self.attack_delay = 0
         self.crouch = False
         self.hit = False
+        self.small_hit = False
         self.health = 100
         self.alive = True
         self.speed = 12
@@ -38,6 +39,9 @@ class Wizard:
         self.harm_cooldown = 0
         self.harm_countdown = 0
         self.harm_hit_cooldown = 0
+        self.heal = False
+        self.trap = False
+        self.trap_cooldown = 0
 
     def load_images(self, sprite_sheet, animation_steps):
         animation_list = []
@@ -58,7 +62,7 @@ class Wizard:
 
         key = pygame.key.get_pressed()
 
-        if self.alive is True and round_over is False and self.hit is False:
+        if self.alive is True and round_over is False and self.hit is False and self.small_hit is False and self.trap is False:
 
             if self.player == 1:
                 if key[pygame.K_a] and (self.attacking is False or self.jump is True):
@@ -164,12 +168,18 @@ class Wizard:
             if pygame.time.get_ticks() >= self.harm_hit_cooldown:
                 self.harm_hit = False
 
+        # trap cooldown
+
+        if self.trap_cooldown > 0 and self.trap is True:
+            if pygame.time.get_ticks() >= self.trap_cooldown:
+                self.trap = False
+
     def update(self):
         if self.health <= 0:
             self.health = 0
             self.alive = False
             self.update_action(6)  # 6: death
-        elif self.hit is True:
+        elif self.hit is True or self.small_hit is True:
             self.update_action(5)  # 5: hit
         elif self.attacking is True:
             if self.attack_type == 1:
@@ -208,9 +218,14 @@ class Wizard:
                     self.attack_cooldown = 20  # Attack Delay
                     self.jump_cooldown = 10  # Jump Delay
                 if self.action == 5:
-                    self.hit = False
-                    self.attacking = False
-                    self.attack_cooldown = 20  # Hit Delay
+                    if self.hit:
+                        self.hit = False
+                        self.attacking = False
+                        self.attack_cooldown = 20  # Hit Delay
+                    elif self.small_hit:
+                        self.small_hit = False
+                        self.attacking = False
+                        self.attack_cooldown = 5  # Hit Delay
 
     def attack(self):
         if self.attack_cooldown == 0 and self.hit is False:

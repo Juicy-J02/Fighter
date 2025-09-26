@@ -3,6 +3,7 @@ from pygame import mixer
 from fighter import Fighter
 from warrior import Warrior
 from wizard import Wizard
+from druid import Druid
 
 mixer.init()
 pygame.init()
@@ -20,6 +21,7 @@ YELLOW = (255, 255, 0)
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 PURPLE = (128, 0, 128)
+GREEN = (0, 128, 0)
 
 intro_count = 3
 last_count_update = pygame.time.get_ticks()
@@ -70,18 +72,20 @@ def draw_bg():
     screen.blit(scaled_bg, (0, 0))
 
 
-def draw_health_bar(health, harm, x, y):
+def draw_health_bar(health, harm, heal, x, y):
     ratio = health / 100
     pygame.draw.rect(screen, WHITE, (x - 5, y - 5, 410, 40))
     pygame.draw.rect(screen, RED, (x, y, 400, 30))
     if harm:
         pygame.draw.rect(screen, PURPLE, (x, y, 400 * ratio, 30))
+    elif heal:
+        pygame.draw.rect(screen, GREEN, (x, y, 400 * ratio, 30))
     else:
         pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
 
 
-fighter_1 = Warrior(1, 200, 310, False)
-fighter_2 = Wizard(2, 700, 310, True)
+fighter_1 = Wizard(1, 200, 310, False)
+fighter_2 = Druid(2, 700, 310, True)
 
 # fighter_1 = Fighter(1, 200, 310, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx, 10)
 # fighter_2 = Fighter(2, 700, 310, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, magic_fx, 12)
@@ -93,8 +97,8 @@ while run:
 
     draw_bg()
 
-    draw_health_bar(fighter_1.health, fighter_1.harm, 20, 20)
-    draw_health_bar(fighter_2.health, fighter_2.harm, 580, 20)
+    draw_health_bar(fighter_1.health, fighter_1.harm, fighter_1.heal,  20, 20)
+    draw_health_bar(fighter_2.health, fighter_2.harm, fighter_2.heal, 580, 20)
     draw_text("P1: " + str(score[0]), score_font, RED, 20, 60)
     draw_text("P2: " + str(score[1]), score_font, RED, 580, 60)
 
@@ -127,8 +131,8 @@ while run:
         if pygame.time.get_ticks() - round_over_time > ROUND_OVER_COOLDOWN:
             round_over = False
             intro_count = 3
-            fighter_1 = Warrior(1, 200, 310, False)
-            fighter_2 = Wizard(2, 700, 310, True)
+            fighter_1 = Druid(1, 200, 310, False)
+            fighter_2 = Warrior(2, 700, 310, True)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
