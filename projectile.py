@@ -2,13 +2,18 @@ import pygame
 
 
 class Projectile:
-    def __init__(self, x, y, direction, speed, damage, image=None):
+    def __init__(self, x, y, direction, speed, damage, image, scale):
         self.image = image
-        self.rect = pygame.Rect(x, y, 40, 20)
+        width, height = image.get_size()
+        self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
+        self.rect = self.image.get_rect(topleft=(x, y))
         self.direction = direction
         self.speed = speed
         self.damage = damage
         self.active = True
+
+        if direction == 1:
+            self.image = pygame.transform.flip(self.image, True, False)
 
     def move(self, screen_width, target):
         self.rect.x += self.speed * self.direction

@@ -88,7 +88,7 @@ class Wizard:
                             self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 4) + 5
                         if key[pygame.K_t]:
                             self.attack_type = 2
-                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 5) + 5
+                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 6) + 5
                         self.attack()
 
             if self.player == 2:
@@ -115,7 +115,7 @@ class Wizard:
                             self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 4) + 5
                         if key[pygame.K_KP2]:
                             self.attack_type = 2
-                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 5) + 5
+                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 6) + 5
                         self.attack()
 
         self.vel_y += GRAVITY
@@ -151,6 +151,7 @@ class Wizard:
             if pygame.time.get_ticks() >= self.attack_delay and self.hit is False:
                 self.throw_attack(surface, target)
                 self.attack_delay = 0
+                self.attack_type = 0
 
         self.rect.x += dx
         self.rect.y += dy

@@ -151,6 +151,7 @@ class Warrior:
             if pygame.time.get_ticks() >= self.attack_delay and self.hit is False:
                 self.throw_attack(surface, target)
                 self.attack_delay = 0
+                self.attack_type = 0
 
         self.rect.x += dx
         self.rect.y += dy

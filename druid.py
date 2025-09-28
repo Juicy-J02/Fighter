@@ -11,7 +11,7 @@ class Druid:
         self.offset = [72, 56]
         self.flip = flip
         self.animation_list = self.load_images(pygame.image.load("assets/images/druid/Sprites/druid.png")
-                                               .convert_alpha(), [8, 5, 1, 8, 8, 8, 8, 8])
+                                               .convert_alpha(), [8, 5, 1, 8, 8, 3, 8, 8])
         self.action = 0
         self.frame_index = 0
         self.image = self.animation_list[self.action][self.frame_index]
@@ -68,11 +68,11 @@ class Druid:
         if self.alive is True and round_over is False and self.hit is False:
 
             if self.player == 1:
-                if key[pygame.K_a]:
+                if key[pygame.K_a] and self.attack_type != 2:
                     dx = -self.speed
                     self.running = True
                     self.flip = True
-                if key[pygame.K_d]:
+                if key[pygame.K_d] and self.attack_type != 2:
                     dx = self.speed
                     self.running = True
                     self.flip = False
@@ -88,18 +88,18 @@ class Druid:
                     if key[pygame.K_r] or key[pygame.K_t]:
                         if key[pygame.K_r]:
                             self.attack_type = 1
-                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 2) + 5
+                            self.attack_delay = pygame.time.get_ticks() + self.animation_cooldown + 5
                         if key[pygame.K_t]:
                             self.attack_type = 2
                             self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 7) + 5
                         self.attack()
 
             if self.player == 2:
-                if key[pygame.K_LEFT] and (self.attacking is False or self.jump is True):
+                if key[pygame.K_LEFT] and self.attack_type != 2:
                     dx = -self.speed
                     self.running = True
                     self.flip = True
-                if key[pygame.K_RIGHT] and (self.attacking is False or self.jump is True):
+                if key[pygame.K_RIGHT] and self.attack_type != 2:
                     dx = self.speed
                     self.running = True
                     self.flip = False
@@ -118,7 +118,7 @@ class Druid:
                             self.attack_delay = pygame.time.get_ticks() + self.animation_cooldown + 5
                         if key[pygame.K_KP2]:
                             self.attack_type = 2
-                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 3) + 5
+                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 7) + 5
                         self.attack()
 
         self.vel_y += GRAVITY
@@ -154,6 +154,7 @@ class Druid:
             if pygame.time.get_ticks() >= self.attack_delay and self.hit is False:
                 self.throw_attack(surface, target)
                 self.attack_delay = 0
+                self.attack_type = 0
 
         self.rect.x += dx
         self.rect.y += dy
@@ -176,6 +177,7 @@ class Druid:
         # projectile movement and drawing
 
         for projectile in self.projectiles:
+
             projectile.move(screen_width, target)
             projectile.draw(surface)
             if projectile.rect.colliderect(target.rect):
@@ -244,12 +246,23 @@ class Druid:
     def throw_attack(self, surface, target):
         if self.attack_type == 1:
             if self.flip is False:
-                twig = Projectile(self.rect.centerx, self.rect.centery, 1, 50, 5)
+                twig = Projectile(self.rect.centerx, self.rect.centery, 1, 50, 5,
+                                  pygame.image.load("assets/images/druid/Sprites/projectile.png").convert_alpha(), 1.5)
             else:
-                twig = Projectile(self.rect.centerx, self.rect.centery, -1, 50, 5)
+                twig = Projectile(self.rect.centerx, self.rect.centery, -1, 50, 5,
+                                  pygame.image.load("assets/images/druid/Sprites/projectile.png").convert_alpha(), 1.5)
             self.projectiles.append(twig)
 
         if self.attack_type == 2:
+
+            if self.flip is False:
+                vine = Projectile(self.rect.centerx + 250, 410, 1, 0, 5,
+                                  pygame.image.load("assets/images/druid/Sprites/vines.png").convert_alpha(), 4)
+            else:
+                vine = Projectile(self.rect.centerx - 250, 410, -1, 0, 5,
+                                  pygame.image.load("assets/images/druid/Sprites/vines.png").convert_alpha(), 4)
+            self.projectiles.append(vine)
+
             if self.flip is False:
                 attacking_rect = pygame.Rect(self.rect.centerx + 250, 400,
                                              self.rect.width, self.rect.height // 2)
