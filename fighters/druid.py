@@ -93,11 +93,11 @@ class Druid:
                         self.attack()
 
             if self.player == 2:
-                if key[pygame.K_LEFT] and self.attack_type != 2:
+                if key[pygame.K_LEFT]:
                     dx = -self.speed
                     self.running = True
                     self.flip = True
-                if key[pygame.K_RIGHT] and self.attack_type != 2:
+                if key[pygame.K_RIGHT]:
                     dx = self.speed
                     self.running = True
                     self.flip = False
@@ -253,10 +253,10 @@ class Druid:
         if self.attack_type == 2:
 
             if self.flip is False:
-                vine = Projectile(self.rect.centerx + 250, 410, 1, 0, 5,
+                vine = Projectile(self.rect.centerx + 250, 450, 1, 0, 5,
                                   pygame.image.load("assets/images/druid/Sprites/vines.png").convert_alpha(), 4)
             else:
-                vine = Projectile(self.rect.centerx - 250, 410, -1, 0, 5,
+                vine = Projectile(self.rect.centerx - 250, 450, -1, 0, 5,
                                   pygame.image.load("assets/images/druid/Sprites/vines.png").convert_alpha(), 4)
             self.projectiles.append(vine)
 
