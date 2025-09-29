@@ -244,10 +244,10 @@ class Druid:
         if self.attack_type == 1:
             if self.flip is False:
                 twig = Projectile(self.rect.centerx, self.rect.centery, 1, 50, 5,
-                                  pygame.image.load("assets/images/druid/Sprites/projectile.png").convert_alpha(), 1.5)
+                                  pygame.image.load("assets/images/druid/Sprites/projectile.png").convert_alpha(), 3)
             else:
                 twig = Projectile(self.rect.centerx, self.rect.centery, -1, 50, 5,
-                                  pygame.image.load("assets/images/druid/Sprites/projectile.png").convert_alpha(), 1.5)
+                                  pygame.image.load("assets/images/druid/Sprites/projectile.png").convert_alpha(), 3)
             self.projectiles.append(twig)
 
         if self.attack_type == 2:

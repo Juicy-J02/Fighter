@@ -6,7 +6,7 @@ class Projectile:
         self.image = image
         width, height = image.get_size()
         self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
-        self.rect = self.image.get_rect(topleft=(x, y))
+        self.rect = self.image.get_rect(center=(x, y))
         self.direction = direction
         self.speed = speed
         self.damage = damage
