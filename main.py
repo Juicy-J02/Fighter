@@ -1,9 +1,9 @@
 import pygame
 from pygame import mixer
 from fighter import Fighter
-from warrior import Warrior
-from wizard import Wizard
-from druid import Druid
+from fighters.warrior import Warrior
+from fighters.wizard import Wizard
+from fighters.druid import Druid
 
 mixer.init()
 pygame.init()
