@@ -1,6 +1,5 @@
 import pygame
 from pygame import mixer
-from fighter import Fighter
 from fighters.warrior import Warrior
 from fighters.wizard import Wizard
 from fighters.druid import Druid
@@ -76,15 +75,15 @@ def draw_health_bar(health, harm, heal, x, y):
     ratio = health / 100
     pygame.draw.rect(screen, WHITE, (x - 5, y - 5, 410, 40))
     pygame.draw.rect(screen, RED, (x, y, 400, 30))
-    if harm:
-        pygame.draw.rect(screen, PURPLE, (x, y, 400 * ratio, 30))
-    elif heal:
+    if heal:
         pygame.draw.rect(screen, GREEN, (x, y, 400 * ratio, 30))
+    elif harm:
+        pygame.draw.rect(screen, PURPLE, (x, y, 400 * ratio, 30))
     else:
         pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
 
 
-fighter_1 = Wizard(1, 200, 310, False)
+fighter_1 = Warrior(1, 200, 310, False)
 fighter_2 = Druid(2, 700, 310, True)
 
 # fighter_1 = Fighter(1, 200, 310, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx, 10)

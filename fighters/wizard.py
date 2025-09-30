@@ -1,6 +1,6 @@
-import pygame
+from effects.harm import *
+from movement import *
 
-from effects.harm import apply_harm, apply_harm_hit, apply_harm_damage, recover_harm
 
 class Wizard:
     def __init__(self, player, x, y, flip):
@@ -28,7 +28,6 @@ class Wizard:
         self.attack_sound = pygame.mixer.Sound("assets/audio/magic.wav")
         self.attack_sound.set_volume(0.5)
         self.attack_delay = 0
-        self.crouch = False
         self.hit = False
         self.small_hit = False
         self.health = 100
@@ -66,57 +65,31 @@ class Wizard:
 
             if self.player == 1:
                 if key[pygame.K_a] and (self.attacking is False or self.jump is True):
-                    dx = -self.speed
-                    self.running = True
-                    self.flip = True
+                    dx = left_move(self)
                 if key[pygame.K_d] and (self.attacking is False or self.jump is True):
-                    dx = self.speed
-                    self.running = True
-                    self.flip = False
+                    dx = right_move(self)
                 if key[pygame.K_w] and self.jump is False and self.jump_cooldown == 0:
-                    self.vel_y = -self.jump_height
-                    self.jump = True
-                # if key[pygame.K_s] and self.jump is False:
-                #     dx = 0
-                #     self.crouch = True
-                # else:
-                #     self.crouch = False
+                    jump(self)
                 if self.attacking is False:
                     if key[pygame.K_r] or key[pygame.K_t]:
                         if key[pygame.K_r]:
-                            self.attack_type = 1
-                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 4) + 5
+                            attack_1(self, 4)
                         if key[pygame.K_t]:
-                            self.attack_type = 2
-                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 6) + 5
-                        self.attack()
+                            attack_2(self, 6)
 
             if self.player == 2:
                 if key[pygame.K_LEFT] and (self.attacking is False or self.jump is True):
-                    dx = -self.speed
-                    self.running = True
-                    self.flip = True
+                    dx = left_move(self)
                 if key[pygame.K_RIGHT] and (self.attacking is False or self.jump is True):
-                    dx = self.speed
-                    self.running = True
-                    self.flip = False
+                    dx = right_move(self)
                 if key[pygame.K_UP] and self.jump is False and self.jump_cooldown == 0:
-                    self.vel_y = -self.jump_height
-                    self.jump = True
-                # if key[pygame.K_DOWN] and self.jump is False:
-                #     dx = 0
-                #     self.crouch = True
-                # else:
-                #     self.crouch = False
+                    jump(self)
                 if self.attacking is False:
                     if key[pygame.K_KP1] or key[pygame.K_KP2]:
                         if key[pygame.K_KP1]:
-                            self.attack_type = 1
-                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 4) + 5
+                            attack_1(self, 4)
                         if key[pygame.K_KP2]:
-                            self.attack_type = 2
-                            self.attack_delay = pygame.time.get_ticks() + (self.animation_cooldown * 6) + 5
-                        self.attack()
+                            attack_2(self, 6)
 
         self.vel_y += GRAVITY
         dy += self.vel_y
@@ -186,8 +159,6 @@ class Wizard:
                 self.update_action(3)  # 3: attack1
             elif self.attack_type == 2:
                 self.update_action(4)  # 4: attack2
-        elif self.crouch is True:
-            self.update_action(8)
         elif self.jump is True:
             self.update_action(2)   # 2: jump
         elif self.running is True:
@@ -227,10 +198,6 @@ class Wizard:
                         self.attacking = False
                         self.attack_cooldown = 5  # Hit Delay
 
-    def attack(self):
-        if self.attack_cooldown == 0 and self.hit is False:
-            self.attacking = True
-            self.attack_sound.play()
 
     def throw_attack(self, surface, target):
         if self.attack_type == 1:
