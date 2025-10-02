@@ -22,7 +22,7 @@ WHITE = (255, 255, 255)
 PURPLE = (128, 0, 128)
 GREEN = (0, 128, 0)
 
-intro_count = 3
+intro_count = 0
 last_count_update = pygame.time.get_ticks()
 score = [0, 0]
 round_over = False
@@ -83,7 +83,7 @@ def draw_health_bar(health, harm, heal, x, y):
         pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
 
 
-fighter_1 = Warrior(1, 200, 310, False)
+fighter_1 = Wizard(1, 200, 310, False)
 fighter_2 = Druid(2, 700, 310, True)
 
 # fighter_1 = Fighter(1, 200, 310, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx, 10)
@@ -115,6 +115,13 @@ while run:
 
     fighter_1.draw(screen)
     fighter_2.draw(screen)
+
+    if isinstance(fighter_1, Druid):
+        if fighter_1.vine:
+            fighter_1.vine.draw(screen, fighter_2)
+    if isinstance(fighter_2, Druid):
+        if fighter_2.vine:
+            fighter_2.vine.draw(screen, fighter_1)
 
     if round_over is False:
         if fighter_1.alive is False:

@@ -1,6 +1,8 @@
+import pygame.time
+
 from effects.harm import *
 from items.projectile import Projectile
-from items.vines import Vines
+from effects.vines import Vines
 from movement import *
 
 
@@ -22,7 +24,7 @@ class Druid:
         self.vel_y = 0
         self.running = False
         self.jump = False
-        self.jump_height = 30
+        self.jump_height = 35
         self.jump_cooldown = 0
         self.attacking = False
         self.attack_type = 0
@@ -34,7 +36,7 @@ class Druid:
         self.small_hit = False
         self.health = 100
         self.alive = True
-        self.speed = 13
+        self.speed = 14
         self.harm = False
         self.harm_hit = False
         self.harm_cooldown = 0
@@ -45,6 +47,7 @@ class Druid:
         self.heal_cooldown = 0
         self.trap = False
         self.trap_cooldown = 0
+        self.vine = None
 
     def load_images(self, sprite_sheet, animation_steps):
         animation_list = []
@@ -79,7 +82,7 @@ class Druid:
                         if key[pygame.K_r]:
                             attack_1(self, 1)
                         if key[pygame.K_t]:
-                            attack_2(self, 7)
+                            attack_2(self, 0)
 
             if self.player == 2:
                 if key[pygame.K_LEFT]:
@@ -93,7 +96,7 @@ class Druid:
                         if key[pygame.K_KP1]:
                             attack_1(self, 1)
                         if key[pygame.K_KP2]:
-                            attack_2(self, 7)
+                            attack_2(self, 0)
 
         self.vel_y += GRAVITY
         dy += self.vel_y
@@ -160,6 +163,12 @@ class Druid:
             if projectile.active is False:
                 self.projectiles.remove(projectile)
 
+        if self.vine:
+            if pygame.time.get_ticks() >= self.vine.vine_cooldown:
+                self.vine.update_action(2)
+            self.vine.update(surface, target, self)
+
+
     def update(self):
         if self.health <= 0:
             self.health = 0
@@ -199,7 +208,7 @@ class Druid:
                     self.jump_cooldown = 10  # Jump Delay
                 if self.action == 3:
                     self.attacking = False
-                    self.attack_cooldown = 10  # Attack Delay
+                    self.attack_cooldown = 0  # Attack Delay
                     self.jump_cooldown = 5  # Jump Delay
                 if self.action == 4:
                     self.attacking = False
@@ -208,8 +217,7 @@ class Druid:
                 if self.action == 5:
                     self.hit = False
                     self.attacking = False
-                    self.attack_cooldown = 20  # Hit Delay ##NOTE: Add Hit animation to correct attack_cooldown
-
+                    self.attack_cooldown = 20  # Hit Delay
 
     def throw_attack(self, surface, target):
         if self.attack_type == 1:
@@ -222,26 +230,13 @@ class Druid:
             self.projectiles.append(twig)
 
         if self.attack_type == 2:
-
-            if self.flip is False:
-                vine = Vines(self.rect.centerx + 250, 410, 5,
-                                  pygame.image.load("assets/images/druid/Sprites/vines.png").convert_alpha(), 4)
-            else:
-                vine = Vines(self.rect.centerx - 250, 410, 5,
-                                  pygame.image.load("assets/images/druid/Sprites/vines.png").convert_alpha(), 4)
-
-            if self.flip is False:
-                attacking_rect = pygame.Rect(self.rect.centerx + 250, 400,
-                                             self.rect.width, self.rect.height // 2)
-            else:
-                attacking_rect = pygame.Rect(self.rect.centerx - 250, 400,
-                                             self.rect.width, self.rect.height // 2)
-            self.draw_debug(surface, attacking_rect)
-            if attacking_rect.colliderect(target.rect) and target.trap is False:
-                target.health -= 5
-                target.trap = True
-                target.trap_cooldown = pygame.time.get_ticks() + 2000
-
+            if not self.vine:
+                if self.flip is True:
+                    self.vine = Vines(self.rect.x - 250, 410, self.flip)
+                else:
+                    self.vine = Vines(self.rect.x + 250, 410, self.flip)
+                self.vine.update_action(1)
+                self.vine.vine_cooldown = pygame.time.get_ticks() + (self.animation_cooldown * 14)
 
     def update_action(self, new_action):
         if new_action != self.action:

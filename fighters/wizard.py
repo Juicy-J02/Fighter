@@ -174,9 +174,10 @@ class Wizard:
         else:
             self.image = base_image
 
-        if pygame.time.get_ticks() - self.update_time > self.animation_cooldown:
-            self.frame_index += 1
-            self.update_time = pygame.time.get_ticks()
+        if not self.trap or self.action == 6:
+            if pygame.time.get_ticks() - self.update_time > self.animation_cooldown:
+                self.frame_index += 1
+                self.update_time = pygame.time.get_ticks()
         if self.frame_index >= len(self.animation_list[self.action]):
             if self.alive is False:
                 self.frame_index = len(self.animation_list[self.action]) - 1
@@ -197,7 +198,6 @@ class Wizard:
                         self.small_hit = False
                         self.attacking = False
                         self.attack_cooldown = 5  # Hit Delay
-
 
     def throw_attack(self, surface, target):
         if self.attack_type == 1:
