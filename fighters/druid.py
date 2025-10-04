@@ -2,7 +2,7 @@ import pygame.time
 
 from effects.harm import *
 from items.projectile import Projectile
-from effects.vines import Vines
+from items.vines import Vines
 from movement import *
 
 
@@ -31,6 +31,7 @@ class Druid:
         self.attack_cooldown = 0
         # self.attack_sound = pygame.mixer.Sound("assets/audio/sword.wav")
         # self.attack_sound.set_volume(0.5)
+        self.attack_sound = None
         self.attack_delay = 0
         self.hit = False
         self.small_hit = False
@@ -129,7 +130,7 @@ class Druid:
         # attack delay
         if self.attack_delay > 0 and self.attacking is True:
             if pygame.time.get_ticks() >= self.attack_delay and self.hit is False:
-                self.throw_attack(surface, target)
+                self.throw_attack()
                 self.attack_delay = 0
 
         self.rect.x += dx
@@ -167,7 +168,6 @@ class Druid:
             if pygame.time.get_ticks() >= self.vine.vine_cooldown:
                 self.vine.update_action(2)
             self.vine.update(surface, target, self)
-
 
     def update(self):
         if self.health <= 0:
@@ -212,20 +212,20 @@ class Druid:
                     self.jump_cooldown = 5  # Jump Delay
                 if self.action == 4:
                     self.attacking = False
-                    self.attack_cooldown = 20  # Attack Delay
+                    self.attack_cooldown = 0  # Attack Delay
                     self.jump_cooldown = 5  # Jump Delay
                 if self.action == 5:
                     self.hit = False
                     self.attacking = False
                     self.attack_cooldown = 20  # Hit Delay
 
-    def throw_attack(self, surface, target):
+    def throw_attack(self):
         if self.attack_type == 1:
             if self.flip is False:
-                twig = Projectile(self.rect.centerx, self.rect.centery, 1, 50, 5,
+                twig = Projectile(self.rect.centerx, self.rect.centery, 1, 50, 2.5,
                                   pygame.image.load("assets/images/druid/Sprites/projectile.png").convert_alpha(), 3)
             else:
-                twig = Projectile(self.rect.centerx, self.rect.centery, -1, 50, 5,
+                twig = Projectile(self.rect.centerx, self.rect.centery, -1, 50, 2.5,
                                   pygame.image.load("assets/images/druid/Sprites/projectile.png").convert_alpha(), 3)
             self.projectiles.append(twig)
 
@@ -249,6 +249,7 @@ class Druid:
         surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale),
                            self.rect.y - (self.offset[1] * self.image_scale)))
 
-    def draw_debug(self, surface, rect):
+    @staticmethod
+    def draw_debug(surface, rect):
         pass
         pygame.draw.rect(surface, (0, 255, 0), rect)

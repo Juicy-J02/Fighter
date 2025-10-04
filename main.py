@@ -39,7 +39,7 @@ WIZARD_OFFSET = [112, 107]
 WIZARD_DATA = [WIZARD_SIZE, WIZARD_SCALE, WIZARD_OFFSET]
 
 pygame.mixer.music.load("assets/audio/music.mp3")
-pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.set_volume(0.25)
 pygame.mixer.music.play(-1, 0.0, 5000)
 
 sword_fx = pygame.mixer.Sound("assets/audio/sword.wav")

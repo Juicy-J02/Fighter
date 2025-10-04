@@ -25,7 +25,8 @@ def attack_1(player, hit_delay):
     player.attack_delay = pygame.time.get_ticks() + (player.animation_cooldown * hit_delay) + 5
     if player.attack_cooldown == 0 and player.hit is False:
         player.attacking = True
-        # self.attack_sound.play()
+        if player.attack_sound:
+            player.attack_sound.play()
 
 
 def attack_2(player, hit_delay):
@@ -33,5 +34,6 @@ def attack_2(player, hit_delay):
     player.attack_delay = pygame.time.get_ticks() + (player.animation_cooldown * hit_delay) + 5
     if player.attack_cooldown == 0 and player.hit is False:
         player.attacking = True
-        # self.attack_sound.play()
+        if player.attack_sound:
+            player.attack_sound.play()
 

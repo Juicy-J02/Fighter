@@ -8,7 +8,7 @@ class Vines:
         self.size = 25
         self.image_scale = 4
 
-        sprite_sheet = pygame.image.load("assets/images/druid/Sprites/vines_sheet.png").convert_alpha()
+        sprite_sheet = pygame.image.load("assets/images/druid/Sprites/vines_sheet2.png").convert_alpha()
         self.animation_list = self.load_images(sprite_sheet, [1, 7, 7])
 
         self.action = 1
@@ -58,7 +58,8 @@ class Vines:
 
 
     def throw_attack(self, surface, target):
-        attacking_rect = self.image.get_rect(topleft=(self.x, 402))
+        # attacking_rect = self.image.get_rect(topleft=(self.x, 402))
+        attacking_rect = pygame.Rect(self.x + 30, 402, target.rect.width // 1.5, self.image.get_rect().height)
 
         # self.draw_debug(surface, attacking_rect)
 

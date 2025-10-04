@@ -26,7 +26,7 @@ class Wizard:
         self.attack_type = 0
         self.attack_cooldown = 0
         self.attack_sound = pygame.mixer.Sound("assets/audio/magic.wav")
-        self.attack_sound.set_volume(0.5)
+        self.attack_sound.set_volume(0.25)
         self.attack_delay = 0
         self.hit = False
         self.small_hit = False
@@ -61,7 +61,8 @@ class Wizard:
 
         key = pygame.key.get_pressed()
 
-        if self.alive is True and round_over is False and self.hit is False and self.small_hit is False and self.trap is False:
+        if (self.alive is True and round_over is False
+                and self.hit is False and self.small_hit is False and self.trap is False):
 
             if self.player == 1:
                 if key[pygame.K_a] and (self.attacking is False or self.jump is True):
@@ -261,7 +262,7 @@ class Wizard:
         surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale),
                            self.rect.y - (self.offset[1] * self.image_scale)))
 
-    def draw_debug(self, surface, rect):
+    @staticmethod
+    def draw_debug(surface, rect):
         pass
         #  pygame.draw.rect(surface, (0, 255, 0), rect)
-
