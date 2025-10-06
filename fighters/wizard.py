@@ -9,6 +9,7 @@ class Wizard:
         self.image_scale = 3
         self.offset = [112, 107]
         self.flip = flip
+        self.ground_height = y
         self.animation_list = self.load_images(pygame.image.load("assets/images/wizard/Sprites/wizard.png")
                                                .convert_alpha(), [8, 8, 1, 8, 8, 3, 7])
         self.action = 0
@@ -17,6 +18,7 @@ class Wizard:
         self.update_time = pygame.time.get_ticks()
         self.animation_cooldown = 50
         self.rect = pygame.Rect((x, y, 80, 180))
+        self.rect.bottom = self.ground_height
         self.vel_y = 0
         self.running = False
         self.jump = False
@@ -53,7 +55,7 @@ class Wizard:
             animation_list.append(temp_img_list)
         return animation_list
 
-    def move(self, screen_width, screen_height, surface, target, round_over):
+    def move(self, screen_width, surface, target, round_over):
         GRAVITY = 2
         dx = 0
         dy = 0
@@ -102,10 +104,10 @@ class Wizard:
         if self.rect.right + dx > screen_width:
             dx = screen_width - self.rect.right
         # ground boundary
-        if self.rect.bottom + dy > screen_height - 110:
+        if self.rect.bottom + dy > self.ground_height:
             self.vel_y = 0
             self.jump = False
-            dy = screen_height - 110 - self.rect.bottom
+            dy = self.ground_height - self.rect.bottom
 
         # if target.rect.centerx > self.rect.centerx and self.alive == True:
         #     self.flip = False
@@ -117,7 +119,7 @@ class Wizard:
             self.attack_cooldown -= 1
 
         # jump cooldown
-        if self.jump_cooldown > 0 and self.rect.bottom == screen_height - 110:
+        if self.jump_cooldown > 0 and self.rect.bottom == self.ground_height:
             self.jump_cooldown -= 1
 
         # attack delay

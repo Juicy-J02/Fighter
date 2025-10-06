@@ -36,4 +36,3 @@ def attack_2(player, hit_delay):
         player.attacking = True
         if player.attack_sound:
             player.attack_sound.play()
-

@@ -22,7 +22,7 @@ WHITE = (255, 255, 255)
 PURPLE = (128, 0, 128)
 GREEN = (0, 128, 0)
 
-intro_count = 0
+intro_count = 3
 last_count_update = pygame.time.get_ticks()
 score = [0, 0]
 round_over = False
@@ -48,6 +48,7 @@ magic_fx = pygame.mixer.Sound("assets/audio/magic.wav")
 magic_fx.set_volume(0.5)
 
 bg_image = pygame.image.load("assets/images/background/background.jpg").convert_alpha()
+groud_height = 490
 
 warrior_sheet = pygame.image.load("assets/images/warrior/Sprites/warrior_3.png").convert_alpha()
 wizard_sheet = pygame.image.load("assets/images/wizard/Sprites/wizard.png").convert_alpha()
@@ -83,8 +84,8 @@ def draw_health_bar(health, harm, heal, x, y):
         pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
 
 
-fighter_1 = Wizard(1, 200, 310, False)
-fighter_2 = Druid(2, 700, 310, True)
+fighter_1 = Druid(1, 200, groud_height, False)
+fighter_2 = Druid(2, 700, groud_height, True)
 
 # fighter_1 = Fighter(1, 200, 310, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx, 10)
 # fighter_2 = Fighter(2, 700, 310, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, magic_fx, 12)
@@ -102,8 +103,8 @@ while run:
     draw_text("P2: " + str(score[1]), score_font, RED, 580, 60)
 
     if intro_count <= 0:
-        fighter_1.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_2, round_over)
-        fighter_2.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_1, round_over)
+        fighter_1.move(SCREEN_WIDTH, screen, fighter_2, round_over)
+        fighter_2.move(SCREEN_WIDTH, screen, fighter_1, round_over)
     else:
         draw_text(str(intro_count), count_font, RED, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3)
         if (pygame.time.get_ticks() - last_count_update) >= 1000:
@@ -137,8 +138,8 @@ while run:
         if pygame.time.get_ticks() - round_over_time > ROUND_OVER_COOLDOWN:
             round_over = False
             intro_count = 3
-            fighter_1 = Druid(1, 200, 310, False)
-            fighter_2 = Warrior(2, 700, 310, True)
+            fighter_1 = Druid(1, 200, groud_height, False)
+            fighter_2 = Warrior(2, 700, groud_height, True)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

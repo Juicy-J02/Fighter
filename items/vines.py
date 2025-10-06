@@ -1,5 +1,6 @@
 import pygame
 
+
 class Vines:
     def __init__(self, x, y, flip):
         self.flip = flip
@@ -8,13 +9,13 @@ class Vines:
         self.size = 25
         self.image_scale = 4
 
-        sprite_sheet = pygame.image.load("assets/images/druid/Sprites/vines_sheet2.png").convert_alpha()
-        self.animation_list = self.load_images(sprite_sheet, [1, 7, 7])
+        sprite_sheet = pygame.image.load("assets/images/druid/Sprites/vines_sheet3.png").convert_alpha()
+        self.animation_list = self.load_images(sprite_sheet, [2, 7, 7])
 
         self.action = 1
         self.frame_index = 0
         self.update_time = pygame.time.get_ticks()
-        self.animation_cooldown = 50
+        self.animation_cooldown = 0
 
         self.vine_cooldown = 0
         self.grow = False
@@ -40,6 +41,12 @@ class Vines:
         return animation_list
 
     def update(self, surface, target, player):
+
+        if self.action == 0:
+            self.animation_cooldown = 100
+        else:
+            self.animation_cooldown = 35
+
         self.image = self.animation_list[self.action][self.frame_index]
 
         if pygame.time.get_ticks() - self.update_time > self.animation_cooldown:
@@ -56,12 +63,14 @@ class Vines:
             else:
                 self.frame_index = 0
 
-
     def throw_attack(self, surface, target):
-        # attacking_rect = self.image.get_rect(topleft=(self.x, 402))
-        attacking_rect = pygame.Rect(self.x + 30, 402, target.rect.width // 1.5, self.image.get_rect().height)
+        attacking_rect = self.image.get_rect(midbottom=(self.x, self.y))
+        attacking_rect.width = attacking_rect.width // 2
+        attacking_rect.x += 25
 
-        # self.draw_debug(surface, attacking_rect)
+        # attacking_rect = pygame.Rect(self.x + 30, self.y, target.rect.width // 1.5, self.image.get_rect().height)
+
+        self.draw_debug(surface, attacking_rect)
 
         if attacking_rect.colliderect(target.rect) and not target.trap:
             target.health -= 5
@@ -80,9 +89,11 @@ class Vines:
             self.frame_index = 0
             self.update_time = pygame.time.get_ticks()
 
-    def draw(self, surface, target):
-        surface.blit(self.image, (self.x, 402))
+    def draw(self, surface):
+        img = self.image.get_rect(midbottom=(self.x, self.y + (3 * self.image_scale)))
+        surface.blit(self.image, img.topleft)
 
-    def draw_debug(self, surface, rect):
+    @staticmethod
+    def draw_debug(surface, rect):
         pygame.draw.rect(surface, (0, 255, 0), rect)
         pass

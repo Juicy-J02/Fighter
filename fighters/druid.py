@@ -13,14 +13,16 @@ class Druid:
         self.image_scale = 4
         self.offset = [72, 56]
         self.flip = flip
+        self.ground_height = y
         self.animation_list = self.load_images(pygame.image.load("assets/images/druid/Sprites/druid.png")
-                                               .convert_alpha(), [8, 5, 1, 8, 8, 3, 8, 8])
+                                               .convert_alpha(), [8, 5, 1, 4, 7, 3, 8, 8])
         self.action = 0
         self.frame_index = 0
         self.image = self.animation_list[self.action][self.frame_index]
         self.update_time = pygame.time.get_ticks()
         self.animation_cooldown = 50
         self.rect = pygame.Rect((x, y, 80, 180))
+        self.rect.bottom = self.ground_height
         self.vel_y = 0
         self.running = False
         self.jump = False
@@ -61,7 +63,7 @@ class Druid:
             animation_list.append(temp_img_list)
         return animation_list
 
-    def move(self, screen_width, screen_height, surface, target, round_over):
+    def move(self, screen_width, surface, target, round_over):
         GRAVITY = 2
         dx = 0
         dy = 0
@@ -69,35 +71,36 @@ class Druid:
 
         key = pygame.key.get_pressed()
 
-        if self.alive is True and round_over is False and self.hit is False:
+        if (self.alive is True and round_over is False
+                and self.hit is False and self.small_hit is False and self.trap is False):
 
             if self.player == 1:
-                if key[pygame.K_a]:
+                if key[pygame.K_a] and (self.attacking is False or self.jump is True):
                     dx = left_move(self)
-                if key[pygame.K_d]:
+                if key[pygame.K_d] and (self.attacking is False or self.jump is True):
                     dx = right_move(self)
                 if key[pygame.K_w] and self.jump is False and self.jump_cooldown == 0:
                     jump(self)
                 if self.attacking is False:
                     if key[pygame.K_r] or key[pygame.K_t]:
                         if key[pygame.K_r]:
-                            attack_1(self, 1)
+                            attack_1(self, 2)
                         if key[pygame.K_t]:
-                            attack_2(self, 0)
+                            attack_2(self, 4)
 
             if self.player == 2:
-                if key[pygame.K_LEFT]:
+                if key[pygame.K_LEFT] and (self.attacking is False or self.jump is True):
                     dx = left_move(self)
-                if key[pygame.K_RIGHT]:
+                if key[pygame.K_RIGHT] and (self.attacking is False or self.jump is True):
                     dx = right_move(self)
                 if key[pygame.K_UP] and self.jump is False and self.jump_cooldown == 0:
                     jump(self)
                 if self.attacking is False:
                     if key[pygame.K_KP1] or key[pygame.K_KP2]:
                         if key[pygame.K_KP1]:
-                            attack_1(self, 1)
+                            attack_1(self, 2)
                         if key[pygame.K_KP2]:
-                            attack_2(self, 0)
+                            attack_2(self, 4)
 
         self.vel_y += GRAVITY
         dy += self.vel_y
@@ -109,10 +112,10 @@ class Druid:
         if self.rect.right + dx > screen_width:
             dx = screen_width - self.rect.right
         # ground boundary
-        if self.rect.bottom + dy > screen_height - 110:
+        if self.rect.bottom + dy > self.ground_height:
             self.vel_y = 0
             self.jump = False
-            dy = screen_height - 110 - self.rect.bottom
+            dy = self.ground_height - self.rect.bottom
 
         # if target.rect.centerx > self.rect.centerx and self.alive == True:
         #     self.flip = False
@@ -124,7 +127,7 @@ class Druid:
             self.attack_cooldown -= 1
 
         # jump cooldown
-        if self.jump_cooldown > 0 and self.rect.bottom == screen_height - 110:
+        if self.jump_cooldown > 0 and self.rect.bottom == self.ground_height:
             self.jump_cooldown -= 1
 
         # attack delay
@@ -151,14 +154,18 @@ class Druid:
             if pygame.time.get_ticks() >= self.heal_cooldown:
                 self.heal = False
 
+        if self.trap_cooldown > 0 and self.trap is True:
+            if pygame.time.get_ticks() >= self.trap_cooldown:
+                self.trap = False
+
         # projectile movement and drawing
 
         for projectile in self.projectiles:
             projectile.move(screen_width, target)
             projectile.draw(surface)
             if projectile.rect.colliderect(target.rect):
-                if self.health <= 98:
-                    self.health += 2
+                if self.health < 100:
+                    self.health = min(self.health + 2.5, 100)
                     self.heal_cooldown = pygame.time.get_ticks() + 250
                     self.heal = True
             if projectile.active is False:
@@ -174,7 +181,7 @@ class Druid:
             self.health = 0
             self.alive = False
             self.update_action(6)  # 6: death
-        elif self.hit is True:
+        elif self.hit is True or self.small_hit is True:
             self.update_action(5)  # 5: hit
         elif self.attacking is True:
             if self.attack_type == 1:
@@ -196,9 +203,10 @@ class Druid:
         else:
             self.image = base_image
 
-        if pygame.time.get_ticks() - self.update_time > self.animation_cooldown:
-            self.frame_index += 1
-            self.update_time = pygame.time.get_ticks()
+        if not self.trap or self.action == 6:
+            if pygame.time.get_ticks() - self.update_time > self.animation_cooldown:
+                self.frame_index += 1
+                self.update_time = pygame.time.get_ticks()
         if self.frame_index >= len(self.animation_list[self.action]):
             if self.alive is False:
                 self.frame_index = len(self.animation_list[self.action]) - 1
@@ -208,16 +216,21 @@ class Druid:
                     self.jump_cooldown = 10  # Jump Delay
                 if self.action == 3:
                     self.attacking = False
-                    self.attack_cooldown = 0  # Attack Delay
+                    self.attack_cooldown = 15  # Attack Delay
                     self.jump_cooldown = 5  # Jump Delay
                 if self.action == 4:
                     self.attacking = False
-                    self.attack_cooldown = 0  # Attack Delay
+                    self.attack_cooldown = 20  # Attack Delay
                     self.jump_cooldown = 5  # Jump Delay
                 if self.action == 5:
-                    self.hit = False
-                    self.attacking = False
-                    self.attack_cooldown = 20  # Hit Delay
+                    if self.hit:
+                        self.hit = False
+                        self.attacking = False
+                        self.attack_cooldown = 20  # Hit Delay
+                    elif self.small_hit:
+                        self.small_hit = False
+                        self.attacking = False
+                        self.attack_cooldown = 5  # Hit Delay
 
     def throw_attack(self):
         if self.attack_type == 1:
@@ -232,9 +245,9 @@ class Druid:
         if self.attack_type == 2:
             if not self.vine:
                 if self.flip is True:
-                    self.vine = Vines(self.rect.x - 250, 410, self.flip)
+                    self.vine = Vines(self.rect.x - 250, self.ground_height, self.flip)
                 else:
-                    self.vine = Vines(self.rect.x + 250, 410, self.flip)
+                    self.vine = Vines(self.rect.x + 250, self.ground_height, self.flip)
                 self.vine.update_action(1)
                 self.vine.vine_cooldown = pygame.time.get_ticks() + (self.animation_cooldown * 14)
 
